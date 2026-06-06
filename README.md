@@ -3,7 +3,7 @@
 > A quantitative finance project pricing European options via Monte Carlo simulation, validated against Black-Scholes, with Greeks and visualisations.
 
 ![Status](https://img.shields.io/badge/status-in%20progress-yellow)
-![Language](https://img.shields.io/badge/python-3.14-blue)
+![Language](https://img.shields.io/badge/python-3.10+-blue)
 ![Topics](https://img.shields.io/badge/topics-quant%20finance%20%7C%20simulation%20%7C%20derivatives-lightgrey)
 
 ---
@@ -20,47 +20,16 @@ The goal is to demonstrate a working understanding of derivatives pricing, numer
 
 | Feature | Status |
 |---|---|
-| Monte Carlo simulation (European call & put) | ✅ Complete |
-| Geometric Brownian Motion path simulation | ✅ Complete |
-| Black-Scholes analytical validation | ✅ Complete |
-| Visualisations (paths, payoff distribution, convergence) | ✅ Complete |
-| Option Greeks (Δ, Γ, ν, Θ, ρ) | 🔄 In progress |
-| Variance reduction — antithetic variates | 🔄 In progress |
-| Unit tests | 🔄 In progress |
+| Monte Carlo simulation (European call & put) | 🔄 In progress |
+| Geometric Brownian Motion path simulation | 🔄 In progress |
+| Black-Scholes analytical validation | 🔄 In progress |
+| Visualisations (paths, payoff distribution, convergence) | 🔄 In progress |
+| Option Greeks (Δ, Γ, Vega, Theta, Rho) | 📋 Planned |
+| Variance reduction — antithetic variates | 📋 Planned |
+| Unit tests | 📋 Planned |
+| CLI with user input | 📋 Planned |
 
----
-
-## Example
-
-```python
-from src.simulator import MonteCarloSimulator
-
-pricer = MonteCarloSimulator(
-    S=100,      # Current stock price
-    K=100,      # Strike price
-    T=1.0,      # Time to expiry (years)
-    r=0.05,     # Risk-free rate
-    sigma=0.2,  # Volatility
-    n_paths=100_000
-)
-
-print(pricer.price(option_type="call"))
-# Monte Carlo:   10.45
-# Black-Scholes: 10.45
-```
-
----
-
-## Visualisations
-
-### Simulated Stock Price Paths
-Thousands of possible stock price trajectories under Geometric Brownian Motion.
-
-### Payoff Distribution
-Histogram of option payoffs across all simulated paths, showing the distribution of outcomes.
-
-### Convergence Chart
-How the Monte Carlo price converges toward the Black-Scholes value as the number of paths increases — demonstrating the law of large numbers in practice.
+> Feature status is updated as each component is completed and tested.
 
 ---
 
@@ -106,7 +75,7 @@ python3 main.py
 
 ## Tech Stack
 
-- **Python 3.14** — core language
+- **Python 3.10+** — core language
 - **NumPy** — vectorised simulation and random number generation
 - **SciPy** — statistical functions for Black-Scholes
 - **Matplotlib** — visualisation
@@ -166,10 +135,10 @@ The Greeks measure how sensitive the option price is to each input:
 ## Roadmap
 
 - [x] Repository structure set up
-- [x] GBM path simulation
-- [x] Monte Carlo pricer (call & put)
-- [x] Black-Scholes validation
-- [x] Visualisations
+- [ ] GBM path simulation
+- [ ] Monte Carlo pricer (call & put)
+- [ ] Black-Scholes validation
+- [ ] Visualisations
 - [ ] Option Greeks
 - [ ] Variance reduction (antithetic variates)
 - [ ] Unit tests
