@@ -1,149 +1,254 @@
-# 📈 Monte Carlo Options Pricer
+# Monte Carlo Options Pricer
 
-> A quantitative finance project pricing European options via Monte Carlo simulation, validated against Black-Scholes, with Greeks and visualisations.
+A personal quantitative finance project for pricing European options using Monte Carlo simulation, with Black-Scholes validation, finite-difference Greeks, and visualisation of simulation behaviour.
 
-![Status](https://img.shields.io/badge/status-in%20progress-yellow)
-![Language](https://img.shields.io/badge/python-3.10+-blue)
-![Topics](https://img.shields.io/badge/topics-quant%20finance%20%7C%20simulation%20%7C%20derivatives-lightgrey)
+The project is written from scratch in Python and organised as a small research-style pricing engine, with separate modules for simulation, analytical pricing, Greeks, plotting, and tests.
 
 ---
 
 ## Overview
 
-This project implements a **European options pricer** using Monte Carlo simulation in Python. It models stock price evolution via **Geometric Brownian Motion**, prices call and put options by averaging discounted payoffs across thousands of simulated paths, and validates every result against the **Black-Scholes analytical formula**.
+This project prices European call and put options by simulating stock price paths under a Geometric Brownian Motion model. The Monte Carlo estimate is then compared against the Black-Scholes analytical price to check convergence and pricing accuracy.
 
-The goal is to demonstrate a working understanding of derivatives pricing, numerical methods, and professional Python project structure — relevant to quantitative finance, risk, and data-driven roles.
+The project also computes option Greeks using finite difference methods, allowing the model to estimate how option value changes with respect to stock price, volatility, time to expiry, and interest rates.
 
 ---
 
-## Features
+## What It Does
 
-| Feature | Status |
-|---|---|
-| Monte Carlo simulation (European call & put) | 🔄 In progress |
-| Geometric Brownian Motion path simulation | 🔄 In progress |
-| Black-Scholes analytical validation | 🔄 In progress |
-| Visualisations (paths, payoff distribution, convergence) | 🔄 In progress |
-| Option Greeks (Δ, Γ, Vega, Theta, Rho) | 📋 Planned |
-| Variance reduction — antithetic variates | 📋 Planned |
-| Unit tests | 📋 Planned |
-| CLI with user input | 📋 Planned |
-
-> Feature status is updated as each component is completed and tested.
+* Prices European call and put options using Monte Carlo simulation
+* Simulates terminal stock prices under Geometric Brownian Motion
+* Validates Monte Carlo prices against the Black-Scholes analytical model
+* Computes option Greeks: Delta, Gamma, Theta, Vega, and Rho
+* Visualises simulated price paths, payoff distributions, and Monte Carlo convergence
+* Includes unit tests for pricing logic, input validation, and model consistency
 
 ---
 
 ## Project Structure
 
-```
+```text
 monte-carlo-options-pricer/
-│
 ├── src/
-│   ├── simulator.py       # Monte Carlo engine & GBM path simulation
-│   ├── black_scholes.py   # Analytical Black-Scholes formula
+│   ├── black_scholes.py   # Black-Scholes analytical pricer
+│   ├── simulator.py       # Geometric Brownian Motion simulation engine
 │   ├── greeks.py          # Option Greeks via finite differences
-│   └── plotter.py         # Visualisation functions
-│
-├── tests/                 # Unit tests
-├── notebooks/             # Exploratory Jupyter notebooks
-├── main.py                # Entry point — run from command line
-├── requirements.txt       # Dependencies
+│   └── plotter.py         # Visualisations for paths, payoff, and convergence
+├── tests/
+│   └── test_pricer.py     # Unit tests for pricing and validation
+├── outputs/               # Generated charts saved here
+├── main.py                # Entry point for running the full pricing pipeline
+├── requirements.txt
 └── README.md
 ```
 
 ---
 
-## How to Run
+## Model Overview
 
-**1. Clone the repository**
+The pricing engine simulates possible future stock prices under a risk-neutral Geometric Brownian Motion process. For each simulated stock price, the option payoff is calculated and discounted back to present value.
+
+For a European call option, the payoff is:
+
+```text
+max(S_T - K, 0)
+```
+
+For a European put option, the payoff is:
+
+```text
+max(K - S_T, 0)
+```
+
+The final option price is estimated as the discounted expected payoff across all simulated paths.
+
+---
+
+## Monte Carlo Simulation
+
+The terminal stock price is modelled as:
+
+```text
+S_T = S_0 * exp((r - 0.5σ²)T + σ√T * Z)
+```
+
+where:
+
+```text
+S_T = terminal stock price
+S_0 = initial stock price
+K   = strike price
+r   = risk-free interest rate
+σ   = volatility
+T   = time to expiry
+Z   = standard normal random variable
+```
+
+The Monte Carlo pricing process is:
+
+1. Generate many random samples from a standard normal distribution
+2. Simulate terminal stock prices using the GBM equation
+3. Compute the option payoff for each simulated terminal price
+4. Take the average payoff across all simulations
+5. Discount the expected payoff back to present value
+
+The option price is estimated by:
+
+```text
+price = exp(-rT) * E[payoff]
+```
+
+As the number of simulations increases, the Monte Carlo estimate should converge towards the analytical Black-Scholes price.
+
+---
+
+## Black-Scholes Benchmark
+
+The Black-Scholes model provides a closed-form analytical price for European options.
+
+In this project, the Black-Scholes price is used as a benchmark for validating the Monte Carlo simulation. The output compares:
+
+* Monte Carlo estimated price
+* 95% confidence interval
+* Black-Scholes analytical price
+* Absolute difference between both methods
+
+This benchmark helps confirm that the simulation is implemented correctly and that the Monte Carlo result converges as expected.
+
+---
+
+## Option Greeks
+
+The project computes option Greeks using finite difference methods applied to the Black-Scholes pricing function.
+
+| Greek | Meaning                      | Method                                         |
+| ----- | ---------------------------- | ---------------------------------------------- |
+| Delta | Sensitivity to stock price   | Central difference on stock price              |
+| Gamma | Rate of change of Delta      | Second-order central difference on stock price |
+| Theta | Sensitivity to time decay    | Difference on time to expiry                   |
+| Vega  | Sensitivity to volatility    | Central difference on volatility               |
+| Rho   | Sensitivity to interest rate | Central difference on interest rate            |
+
+These Greeks are useful for understanding how option prices respond to changes in the underlying market inputs.
+
+---
+
+## Sample Output
+
+```text
+==========================================================
+          MONTE CARLO OPTIONS PRICER
+==========================================================
+  S=100  K=100  r=5%  σ=20%  T=0.5yr
+==========================================================
+
+  CALL
+  Monte Carlo:   $6.8879 ± 0.0220
+  95% CI:        ($6.8448, $6.9311)
+  Black-Scholes: $6.8887
+  Difference:    $0.0008
+
+  PUT
+  Monte Carlo:   $4.4189 ± 0.0156
+  95% CI:        ($4.3883, $4.4495)
+  Black-Scholes: $4.4197
+  Difference:    $0.0008
+```
+
+---
+
+## Visualisations
+
+The project generates charts for:
+
+* Simulated GBM stock price paths
+* Option payoff distribution
+* Monte Carlo convergence against the Black-Scholes price
+
+Generated charts are saved in the `outputs/` folder.
+
+---
+
+## Testing
+
+Unit tests are included to check the main pricing logic and model behaviour.
+
+The tests cover:
+
+* Black-Scholes pricing outputs
+* Monte Carlo pricing behaviour
+* Input validation
+* Put-call parity
+* Greeks calculation
+* Basic consistency between simulation and analytical pricing
+
+Run all tests with:
+
 ```bash
-git clone https://github.com/rileychenau-tech/monte-carlo-options-pricer.git
+python3 -m pytest tests/ -v
+```
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/rileychenau-tech/monte-carlo-options-pricer
 cd monte-carlo-options-pricer
 ```
 
-**2. Install dependencies**
+Install required packages:
+
 ```bash
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-**3. Run the pricer**
+---
+
+## Usage
+
+Run the full pricing pipeline:
+
 ```bash
 python3 main.py
 ```
 
----
+Run individual modules:
 
-## Tech Stack
-
-- **Python 3.10+** — core language
-- **NumPy** — vectorised simulation and random number generation
-- **SciPy** — statistical functions for Black-Scholes
-- **Matplotlib** — visualisation
-
----
-
-## Key Concepts
-
-<details>
-<summary><strong>Geometric Brownian Motion</strong></summary>
-
-GBM is the standard model for stock price evolution. It assumes prices follow a random walk with a drift (expected return) and diffusion (volatility) term. The discrete-time form used in simulation is:
-
-```
-S(t+Δt) = S(t) × exp((r - σ²/2)Δt + σ√Δt × Z)
+```bash
+python3 -m src.black_scholes
+python3 -m src.simulator
+python3 -m src.greeks
+python3 -m src.plotter
 ```
 
-where Z ~ N(0,1) is a standard normal random variable.
+Run all tests:
 
-</details>
-
-<details>
-<summary><strong>Monte Carlo Pricing</strong></summary>
-
-1. Simulate N stock price paths from today to expiry
-2. Compute the option payoff for each path — max(S_T - K, 0) for a call
-3. Average the payoffs
-4. Discount back to today using the risk-free rate
-5. As N → ∞, the price converges to the true theoretical value
-
-</details>
-
-<details>
-<summary><strong>Black-Scholes Validation</strong></summary>
-
-Black-Scholes gives a closed-form analytical price for European options. Since Monte Carlo is a numerical approximation, comparing the two confirms the simulation is working correctly and converging at the expected rate.
-
-</details>
-
-<details>
-<summary><strong>Option Greeks</strong></summary>
-
-The Greeks measure how sensitive the option price is to each input:
-
-| Greek | Measures sensitivity to... |
-|---|---|
-| Delta (Δ) | Stock price movement |
-| Gamma (Γ) | Rate of change of Delta |
-| Vega (ν) | Volatility |
-| Theta (Θ) | Time decay |
-| Rho (ρ) | Interest rate changes |
-
-</details>
+```bash
+python3 -m pytest tests/ -v
+```
 
 ---
 
-## Roadmap
+## Requirements
 
-- [x] Repository structure set up
-- [ ] GBM path simulation
-- [ ] Monte Carlo pricer (call & put)
-- [ ] Black-Scholes validation
-- [ ] Visualisations
-- [ ] Option Greeks
-- [ ] Variance reduction (antithetic variates)
-- [ ] Unit tests
-- [ ] CLI with user input
+```text
+numpy
+scipy
+matplotlib
+pandas
+pytest
+```
 
 ---
 
-*Built as a quantitative finance portfolio project. Demonstrates Monte Carlo methods, derivatives pricing, and professional Python project structure.*
+## Current Status
+
+* Monte Carlo option pricing completed
+* Black-Scholes analytical pricing completed
+* Option Greeks calculation completed
+* Visualisations completed
+* Unit tests completed
+* Public GitHub version completed
